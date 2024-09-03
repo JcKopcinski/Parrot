@@ -6,12 +6,18 @@
 // Create a new instance of the HAL class
 PiHal* hal = new PiHal(0);
 
-// NSS pin: WiringPi 10 (GPIO 8) WPI # 29 GPIO 21 for Pi hat
-// DIO1 pin: WiringPi 2 (GPIO 27) WPI # 27 GPIO 16 for Pi hat
-// NRST pin: WiringPi 21 (GPIO 5) WPI #1 GPIO 18
-// BUSY pin: WiringPi 0 (GPIO 17) WPI #28 GPIO 20
+// Create the radio module instance/////////////////////////
+// Pinout *****MBED SHIELD****************PI HAT************
+// NSS pin:  WPI# 10 (GPIO 8)  WPI # 29 (GPIO 21) for Pi hat
+// DIO1 pin: WPI# 2  (GPIO 27) WPI # 27 (GPIO 16) for Pi hat
+// NRST pin: WPI# 21 (GPIO 5)  WPI # 1  (GPIO 18) for Pi hat
+// BUSY pin: WPI# 0  (GPIO 17) WPI # 28 (GPIO 20) for Pi hat
+////////////////////////////////////////////////////////////
 
-Module* module = new Module(hal, 10, 2, 21, 0);
+// Radio initialization based on Pi Hat wiring
+// change for MBED Shield use
+// According to SX1262 radio = new Module(hal, NSS,DI01,NRST,BUSY)
+Module* module = new Module(hal, 29, 27, 1, 28);
 SX1262 radio(module);
 
 // Flag to indicate packet has been received
