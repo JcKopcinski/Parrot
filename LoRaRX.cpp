@@ -4,7 +4,7 @@
 #include <cstdio>
 
 // Create a new instance of the HAL class
-PiHal* hal = new PiHal(0);
+PiHal* hal = new PiHal(0); // 0 for SPI 0 , set to 1 if using SPI 1(this will change NSS pinout)
 
 // Create the radio module instance/////////////////////////
 // Pinout *****MBED SHIELD****************PI HAT************
