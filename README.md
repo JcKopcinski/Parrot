@@ -6,18 +6,18 @@
 
 This project utilizes the SX1262 chip and Raspberry Pi to transmit and receive data using LoRa and FSK modulation.
 
-***********VERY IMPORTANT*********************************
-- Enable SPI before attempting to transmit or receive.   *
-Run the following commands:                              *
-`sudo raspi-config`                                      *
-Navigate to `Interfacing Options` -> `SPI` and enable it.*
-Reboot your Raspberry Pi.                                *
+***********VERY IMPORTANT***********
+- Enable SPI before attempting to transmit or receive.   
+Run the following commands:                              
+`sudo raspi-config`                                      
+Navigate to `Interfacing Options` -> `SPI` and enable it.
+Reboot your Raspberry Pi.                                
 **********************************************************
 
 ## Installation Instructions
 
 1. Clone the GitHub Repository for EE456: 
-`git clone https://github.com/your-username/EE456-Project.git`
+`git clone https://github.com/BenDuval/EE456.git`
 2. Clone RadioLib in Your Home Directory: 
 `git clone https://github.com/jgromes/RadioLib.git ~/RadioLib`
 3. Clone WiringPi in Your Home Directory: 
@@ -25,7 +25,7 @@ Reboot your Raspberry Pi.                                *
 4. Build the Project: 
 Navigate to the `src` directory and run the following commands: 
 `cd ~/EE456-Project/src/` 
-then `cmake ..` then `make`.
+then `cmake ..` then `make`
 
 ## Wiring Diagram for WiringPi Library & SX1262 MBED Shield
 - NSS: GPIO 8, WPI# 10  
