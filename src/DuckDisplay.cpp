@@ -89,7 +89,7 @@ static const unsigned char u8g_logo_bits[] U8X8_PROGMEM = {
 #define u8g_logo_width 128
 #define u8g_logo_height 64
 
-DuckDisplay* DuckDisplay::instance = NULL;
+DuckDisplay* DuckDisplay::instance = nullptr;
 
 DuckDisplay::DuckDisplay() {}
 

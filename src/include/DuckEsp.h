@@ -53,6 +53,6 @@ void restartDuck();
  * @param format true if the mac address is formated as MM:MM:MM:SS:SS:SS
  * @return A string representing the mac address.   
  */
-std::string getDuckMacAddress(boolean format);
+std::string getDuckMacAddress(bool format);
 } // namespace duckesp
 #endif

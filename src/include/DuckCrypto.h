@@ -11,6 +11,8 @@
 
 
 #include "../DuckLogger.h"
+#include <cstddef>
+#include <cstdint>
 
 namespace duckcrypto {
 

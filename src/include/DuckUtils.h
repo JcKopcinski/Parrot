@@ -21,6 +21,7 @@
 #include <string>
 #include <vector>
 #include "../DuckError.h"
+#include <array>
 
 namespace duckutils {
 

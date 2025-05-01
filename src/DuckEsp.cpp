@@ -45,6 +45,6 @@ namespace duckesp {
   int freeHeapMemory() {return -1;}
   int getMinFreeHeap() {return -1;}
   int getMaxAllocHeap() {return -1;}
-  std::string getDuckMacAddress(boolean format) {return "unknown";}
+ // std::string getDuckMacAddress(bool format) {return "unknown";}
 #endif
 } // namespace duckesp

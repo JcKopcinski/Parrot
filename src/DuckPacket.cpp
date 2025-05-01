@@ -1,4 +1,8 @@
+
+#ifdef ARDUINO
 #include "Arduino.h"
+#endif //Arduino
+
 #include "include/DuckPacket.h"
 #include "DuckError.h"
 #include "DuckLogger.h"

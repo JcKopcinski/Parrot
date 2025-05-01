@@ -1,13 +1,14 @@
 #include "include/DuckCrypto.h"
 #include "include/DuckUtils.h"
 
-
+#ifdef ARDUIINO
 #include "../../Crpyto/src/Crypto.h" //more builds cannot locate this file
 #include "../../Crypto/src/AES.h" // some builds can't find this file so we need explicit path
 #include "CTR.h"
-
-#ifdef ARDUINO //disable ARDUINO GPS on non-arduino boards
+#endif //ARDUINO
+#ifdef ARDUINO //disable ARDUINO ENCRYPTION on non-arduino boards
 namespace duckcrypto {
+
 
    // Initializing the cipher (CTR with AES256)
    CTR<AES256> ctraes256;

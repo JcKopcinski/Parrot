@@ -1,7 +1,9 @@
 #ifndef CDPPACKET_H_
 #define CDPPACKET_H_
 
+#ifdef ARDUINO
 #include "Arduino.h"
+#endif //ARDUINO
 #include "include/DuckUtils.h"
 #include "DuckLogger.h"
 #include "include/DuckTypes.h"

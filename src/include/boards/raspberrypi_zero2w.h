@@ -3,4 +3,4 @@
 //Board name
 #define CDP_BOARD_NAME "Raspberry Pi Zero 2W"
 //OLED Display Settings
-#define CDPCFG_OLED_NONEi
+#define CDPCFG_OLED_NONE

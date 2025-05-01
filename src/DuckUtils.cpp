@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
-
+#include <array>
 #include "DuckLogger.h"
 
 namespace duckutils {
