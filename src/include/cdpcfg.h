@@ -35,6 +35,7 @@
   #define CDPCFG_LORA_CLASS SX1276
 #endif
 
+//#ifdef
 /**
  * @brief Non board specific configuration
  */

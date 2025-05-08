@@ -20,7 +20,7 @@
 #endif // ARDUINO
 #include <vector>
 #include <string>
-
+#include <cstdint>
 #ifndef CDPCFG_OLED_NONE
 #include <U8g2lib.h>
 
@@ -41,7 +41,7 @@ public:
    */
   static DuckDisplay* getInstance();
 #ifdef CDPCFG_OLED_NONE
-  void setupDisplay(int duckType, std::vector<byte> name) {}
+  void setupDisplay(int duckType, std::vector<uint8_t> name) {}
   void powerSave(bool save) {}
   void drawString(uint8_t x, uint8_t y, const char* text) {}
   void drawString(bool cls, uint8_t x, uint8_t y, const char* text) {}
@@ -58,7 +58,7 @@ public:
    * @brief Initialize the display component.
    * 
    */
-  void setupDisplay(int duckType, std::vector<byte> name);
+  void setupDisplay(int duckType, std::vector<uint8_t> name);
   /**
    * @brief Toggle the display in or out of power saving mode.
    * 

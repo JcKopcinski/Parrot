@@ -15,6 +15,13 @@
 
 #ifdef ARDUINO
 #include <WString.h>
+#include <Update.h>
+
+#include <DNSServer.h>
+#include <ESPAsyncWebServer.h>
+#include <ESPmDNS.h>
+#include <WiFi.h>
+#include <WiFiClientSecure.h>
 #endif //Arduino
 #include "cdpcfg.h"
 
@@ -26,6 +33,7 @@
 #include "DuckError.h"
 #include "DuckLogger.h"
 #include <string>
+#include <cstdint>
 
 #include "DuckRadio.h"
 #include "bloomfilter.h"
@@ -34,13 +42,6 @@
 #ifdef CDPCFG_WIFI_NONE
 #pragma info "WARNING: WiFi is disabled. DuckNet will not be available."
 #else
-
-#include <Update.h>
-#include <DNSServer.h>
-#include <ESPAsyncWebServer.h>
-#include <ESPmDNS.h>
-#include <WiFi.h>
-#include <WiFiClientSecure.h>
 
 #include "DuckEsp.h"
 #include "index.h"
@@ -104,7 +105,7 @@ public:
     return std::string("");
   }
 
-  void setDeviceId(std::vector<byte> deviceId) {
+  void setDeviceId(std::vector<uint8_t> deviceId) {
     logwarn_ln("WARNING setDeviceId skipped, device has no WiFi.");
   }
 
@@ -237,7 +238,8 @@ public:
    *
    * @param deviceId Duck's device ID string to set
    */
-  void setDeviceId(std::array<byte,8> deviceId);
+  void setDeviceId(std::array<uint8_t,8> deviceId);
+
 
   /**
    * @brief Provide Wifi connection status.
@@ -260,11 +262,11 @@ private:
 
   DuckPacket* txPacket = NULL;
 
-  std::array<byte,8> deviceId;
+  std::array<uint8_t,8> deviceId;
 
   BloomFilter *bloomFilter = nullptr;
 
-  static const byte DNS_PORT;
+  static const uint8_t DNS_PORT;
   static const char* DNS;
   static const char* AP;
   std::string portal = "";

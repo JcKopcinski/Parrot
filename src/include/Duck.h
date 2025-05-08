@@ -46,15 +46,15 @@ public:
   /**
    * @brief setup the duck unique ID
    * 
-   * @param an 8 byte array
+   * @param an 8 uint8_t array
    * @return DUCK_ERR_NONE if successful, an error code otherwise 
    */
-  int setDeviceId(std::array<byte,8>& id);
+  int setDeviceId(std::array<uint8_t,8>& id);
 
   /**
    * @brief setup the duck unique ID
    *
-   * @param an 8 byte unique id
+   * @param an 8 uint8_t unique id
    * @return DUCK_ERR_NONE if successful, an error code otherwise
    */
   int setDeviceId(std::string& id);
@@ -62,11 +62,11 @@ public:
     /**
      * @brief setup the duck unique ID
      *
-     * @param an 8 byte unique id
+     * @param an 8 uint8_t unique id
      * @return DUCK_ERR_NONE if successful, an error code otherwise
      */
-  [[deprecated("use setDeviceId(std::array<byte,8>& id) instead")]]
-  int setDeviceId(byte* id);
+  [[deprecated("use setDeviceId(std::array<uint8_t,8>& id) instead")]]
+  int setDeviceId(uint8_t* id);
   /**
    * @brief Setup serial connection.
    *
@@ -95,9 +95,9 @@ public:
   /**
    * @brief Set sync word used to communicate between radios. 0x12 for private and 0x34 for public channels.
    * 
-   * @param syncWord set byte syncWord
+   * @param syncWord set uint8_t syncWord
    */
-  void setSyncWord(byte syncWord);
+  void setSyncWord(uint8_t syncWord);
 
   /**
    * @brief Set radio channel to transmit and receive on.
@@ -154,8 +154,8 @@ public:
    * @param outgoingMuid Output parameter that returns the MUID of the sent packet. NULL is ignored.
    * @return DUCK_ERR_NONE if the data was send successfully, an error code otherwise. 
    */
-  int sendData(byte topic, const std::string data,
-    const std::array<byte,8> targetDevice = ZERO_DUID, std::array<byte,8> * outgoingMuid = NULL);
+  int sendData(uint8_t topic, const std::string data,
+    const std::array<uint8_t,8> targetDevice = ZERO_DUID, std::array<uint8_t,8> * outgoingMuid = NULL);
 
   /**
    * @brief Sends data into the mesh network.
@@ -167,35 +167,35 @@ public:
    * @return DUCK_ERR_NONE if the data was send successfully, an error code
    otherwise.
    */
-  int sendData(byte topic, std::vector<byte>& bytes,
-    const std::array<byte,8> targetDevice = ZERO_DUID, std::array<byte,8> * outgoingMuid = NULL);
+  int sendData(uint8_t topic, std::vector<uint8_t>& bytes,
+    const std::array<uint8_t,8> targetDevice = ZERO_DUID, std::array<uint8_t,8> * outgoingMuid = NULL);
     
   /**
    * @brief Sends data into the mesh network.
    *
    * @param topic the message topic
-   * @param data a byte buffer representing the data to send
-   * @param length the length of the byte buffer
+   * @param data a uint8_t buffer representing the data to send
+   * @param length the length of the uint8_t buffer
    * @param targetDevice the device UID to receive the message (default is no target device)
    * @param outgoingMuid Output parameter that returns the MUID of the sent packet. NULL is ignored.
    * @return DUCK_ERR_NONE if the data was send successfully, an error code
    * otherwise.
    */
-  int sendData(byte topic, const byte* data, int length,
-    const std::array<byte,8> targetDevice = ZERO_DUID, std::array<byte,8> * outgoingMuid = NULL);
+  int sendData(uint8_t topic, const uint8_t* data, int length,
+    const std::array<uint8_t,8> targetDevice = ZERO_DUID, std::array<uint8_t,8> * outgoingMuid = NULL);
 
   /**
    * @brief Builds a CdpPacket with a specified muid.
    *
    * @param topic the message topic
-   * @param data a byte buffer representing the data to send
-   * @param length the length of the byte buffer
+   * @param data a uint8_t buffer representing the data to send
+   * @param length the length of the uint8_t buffer
    * @param targetDevice the device UID to receive the message
    * @param muid the muid that should be associated with this packet
    * @return a new CdpPacket
    * */
-  CdpPacket buildCdpPacket(byte topic, const std::vector<byte> data,
-    const std::array<byte,8> targetDevice, const std::array<byte,4> &muid);
+  CdpPacket buildCdpPacket(uint8_t topic, const std::vector<uint8_t> data,
+    const std::array<uint8_t,8> targetDevice, const std::array<uint8_t,4> &muid);
 
   /**
    * @brief Check wifi connection status
@@ -256,22 +256,22 @@ public:
   /**
    * @brief Set new AES key for encryption.
    * 
-   * @param newKEY byte array, must be 32 bytes
+   * @param newKEY uint8_t array, must be 32 bytes
    */
   void setAESKey(uint8_t newKEY[32]);
 
   /**
    * @brief Set new AES initialization vector.
    * 
-   * @param newIV byte array, must be 16 bytes
+   * @param newIV uint8_t array, must be 16 bytes
    */
   void setAESIv(uint8_t newIV[16]);
 
   /**
    * @brief Encrypt data using AES-256 CTR.
    * 
-   * @param text pointer to byte array of plaintext
-   * @param encryptedData pointer to byte array to store encrypted message
+   * @param text pointer to uint8_t array of plaintext
+   * @param encryptedData pointer to uint8_t array to store encrypted message
    * @param inc size of text to be encrypted
    */
   void encrypt(uint8_t* text, uint8_t* encryptedData, size_t inc);
@@ -279,8 +279,8 @@ public:
   /**
    * @brief Decrypt data using AES-256 CTR.
    * 
-   * @param encryptedData pointer to byte array to be decrypted
-   * @param text pointer to byte array to store decrypted plaintext
+   * @param encryptedData pointer to uint8_t array to be decrypted
+   * @param text pointer to uint8_t array to store decrypted plaintext
    * @param inc size of text to be decrypted
    */
   void decrypt(uint8_t* encryptedData, uint8_t* text, size_t inc);
@@ -292,7 +292,7 @@ protected:
   std::string duckName="";
 
   std::string deviceId;
-  std::array<byte,8> duid;
+  std::array<uint8_t,8> duid;
 
   DuckRadio& duckRadio = DuckRadio::getInstance();
 
@@ -301,7 +301,7 @@ protected:
 
   DuckPacket* txPacket = NULL;
   DuckPacket* rxPacket = NULL;
-  std::array<byte,4> lastMessageMuid;
+  std::array<uint8_t,4> lastMessageMuid;
 
   BloomFilter filter;
 
@@ -339,7 +339,7 @@ protected:
    * The default implementation simply initializes the serial interface.
    * It can be overriden by each concrete Duck class implementation.
    */
-  virtual int setupWithDefaults(std::array<byte,8> deviceId, std::string ssid, std::string password) {
+  virtual int setupWithDefaults(std::array<uint8_t,8> deviceId, std::string ssid, std::string password) {
     int err = setupSerial();
     if (err != DUCK_ERR_NONE) {
       return err;

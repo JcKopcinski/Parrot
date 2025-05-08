@@ -4,6 +4,9 @@
 #ifndef CDP_NO_LOG
 #ifdef ARDUINO
 #include "Arduino.h"
+#else
+#include <cstdarg>
+#include <cstddef>
 #endif //ARDUINO
 #define CDP_DEBUG
 #endif //CDP_NO_LOG
@@ -28,9 +31,19 @@
 #if defined(ARDUINO)
 #define OUTPUT_PORT Serial
 #else
-#define PORT std::cout
-#endif
+#include <iostream>
+#define OUTPUT_PORT Linux_Port
+#endif //ARDUINO
 
+#ifndef ARDUINO
+struct {
+	size_t write(const uint8_t* data, size_t len) {
+		std::cout.write(reinterpret_cast<const char*>(data), len);
+		std::cout.flush();
+		return len;
+	}
+} Linux_Port;
+#endif //ARDUINO
 
 // https://github.com/esp8266/Arduino/blob/65579d29081cb8501e4d7f786747bf12e7b37da2/cores/esp8266/Print.cpp#L50
 static size_t cdpPrintf(const char *format, ...) {
@@ -49,7 +62,9 @@ static size_t cdpPrintf(const char *format, ...) {
         vsnprintf(buffer, len + 1, format, arg);
         va_end(arg);
     }
+
     len = OUTPUT_PORT.write((const uint8_t*) buffer, len);
+
     if (buffer != temp) {
         delete[] buffer;
     }

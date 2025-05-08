@@ -68,14 +68,14 @@ void Duck::logIfLowMemory() {
   }
 }
 
-int Duck::setDeviceId(std::array<byte,8>& id) {
+int Duck::setDeviceId(std::array<uint8_t,8>& id) {
     std::copy(id.begin(), id.end(),duid.begin());
   loginfo_ln("setupDeviceId rc = %d",DUCK_ERR_NONE);
   return DUCK_ERR_NONE;
 }
 
 
-int Duck::setDeviceId(byte* id) {
+int Duck::setDeviceId(uint8_t* id) {
     if (id == nullptr) {
         logerr_ln("ERROR  device id empty or address invalid = %d", DUCK_ERR_SETUP);
         return DUCK_ERR_SETUP;
@@ -148,7 +148,7 @@ int Duck::setupRadio(float band, int ss, int rst, int di0, int di1,
   return DUCK_ERR_NONE;
 }
 
-void Duck::setSyncWord(byte syncWord) {
+void Duck::setSyncWord(uint8_t syncWord) {
   duckRadio.setSyncWord(syncWord);
 }
 
@@ -204,26 +204,26 @@ void Duck::processPortalRequest() {}
 void Duck::processPortalRequest() { duckNet->dnsServer.processNextRequest(); }
 #endif
 
-int Duck::sendData(byte topic, const std::string data,
-  const std::array<byte,8> targetDevice, std::array<byte,8> * outgoingMuid)
+int Duck::sendData(uint8_t topic, const std::string data,
+  const std::array<uint8_t,8> targetDevice, std::array<uint8_t,8> * outgoingMuid)
 {
-  std::vector<byte> app_data;
+  std::vector<uint8_t> app_data;
   app_data.insert(app_data.end(), data.begin(), data.end());
   int err = sendData(topic, app_data, targetDevice, outgoingMuid);
   return err;
 }
 
-int Duck::sendData(byte topic, const byte* data, int length,
-  const std::array<byte,8> targetDevice, std::array<byte,8> * outgoingMuid)
+int Duck::sendData(uint8_t topic, const uint8_t* data, int length,
+  const std::array<uint8_t,8> targetDevice, std::array<uint8_t,8> * outgoingMuid)
 {
-  std::vector<byte> app_data(length);
+  std::vector<uint8_t> app_data(length);
   app_data.insert(app_data.end(), &data[0], &data[length]);
   int err = sendData(topic, app_data, targetDevice, outgoingMuid);
   return err;
 }
 
-int Duck::sendData(byte topic, std::vector<byte>& data,
-  const std::array<byte,8> targetDevice, std::array<byte,8> * outgoingMuid)
+int Duck::sendData(uint8_t topic, std::vector<uint8_t>& data,
+  const std::array<uint8_t,8> targetDevice, std::array<uint8_t,8> * outgoingMuid)
 {
    if (topic < reservedTopic::max_reserved) {
      logerr_ln("ERROR send data failed, topic is reserved.");
@@ -257,8 +257,8 @@ int Duck::sendData(byte topic, std::vector<byte>& data,
   return err;
 }
 
-CdpPacket Duck::buildCdpPacket(byte topic, const std::vector<byte> data,
-    const std::array<byte,8> targetDevice, const std::array<byte,4> &muid)
+CdpPacket Duck::buildCdpPacket(uint8_t topic, const std::vector<uint8_t> data,
+    const std::array<uint8_t,8> targetDevice, const std::array<uint8_t,4> &muid)
 {
   if (data.size() > MAX_DATA_LENGTH) {
     logerr_ln("ERROR send data failed, message too large: %d bytes", data.size());
@@ -307,7 +307,7 @@ int Duck::startReceive() {
 
 int Duck::sendPong() {
   int err = DUCK_ERR_NONE;
-  std::vector<byte> data(1, 0);
+  std::vector<uint8_t> data(1, 0);
   err = txPacket->prepareForSending(&filter, ZERO_DUID, this->getType(), reservedTopic::pong, data);
   if (err != DUCK_ERR_NONE) {
     logerr_ln("ERROR Oops! failed to build pong packet, err = %d", err);
@@ -323,7 +323,7 @@ int Duck::sendPong() {
 
 int Duck::sendPing() {
   int err = DUCK_ERR_NONE;
-  std::vector<byte> data(1, 0);
+  std::vector<uint8_t> data(1, 0);
   err = txPacket->prepareForSending(&filter, ZERO_DUID, this->getType(), reservedTopic::ping, data);
   if (err != DUCK_ERR_NONE) {
     logerr_ln("ERROR Failed to build ping packet, err = " + err);

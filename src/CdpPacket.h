@@ -3,13 +3,15 @@
 
 #ifdef ARDUINO
 #include "Arduino.h"
+#else
+#include <cstdint>
 #endif //ARDUINO
+
 #include "include/DuckUtils.h"
 #include "DuckLogger.h"
 #include "include/DuckTypes.h"
 #include <string>
 #include <array>
-
 #define MAX_HOPS 6
 
 // field/section length (in bytes)
@@ -48,9 +50,9 @@ Maximum number of DUID/MUID pairs is:
 Which is:
   floor( (229 - 1) / 12 ) = 19
 
-N:              1  byte                - Number of DUID/MUID pairs
-Each DUID:     08  byte array          - A Device Unique ID
-Each MUID:     04  byte array          - Message unique ID
+N:              1  uint8_t                - Number of DUID/MUID pairs
+Each DUID:     08  uint8_t array          - A Device Unique ID
+Each MUID:     04  uint8_t array          - Message unique ID
 */
 #define MAX_MUID_PER_ACK 19
 
@@ -68,12 +70,12 @@ Data Section of a duck command (max 229 bytes):
 |N| VAL
 +-+-----+-...
 
-N:              1  byte                - Command lookup value
+N:              1  uint8_t                - Command lookup value
 VAL:          228  bytes               - Value to set for command
 
 */
 
-// header + 1 hop + 1 byte data
+// header + 1 hop + 1 uint8_t data
 #define MIN_PACKET_LENGTH (HEADER_LENGTH + 1)
 
 
@@ -133,48 +135,48 @@ enum reservedTopic {
 |        |        |    |  |  |  |    |            (max 229 bytes)             |
 +--------+--------+----+--+--+--+----+----------------------------------------+
 
-SDUID:     08  byte array          - Source Device Unique ID
-DDUID:     08  byte array          - Destination Device Unique ID
-MUID:      04  byte array          - Message unique ID
-T   :      01  byte value          - Topic (topic 0..15 are reserved for internal use)
-DT  :      01  byte value          - Duck Type 
-HC  :      01  byte value          - Hop count (the number of times the packet was relayed)
-DCRC:      04  byte value          - Data section CRC
-DATA:      229 byte array          - Data payload (e.g sensor read, text,...)
+SDUID:     08  uint8_t array          - Source Device Unique ID
+DDUID:     08  uint8_t array          - Destination Device Unique ID
+MUID:      04  uint8_t array          - Message unique ID
+T   :      01  uint8_t value          - Topic (topic 0..15 are reserved for internal use)
+DT  :      01  uint8_t value          - Duck Type 
+HC  :      01  uint8_t value          - Hop count (the number of times the packet was relayed)
+DCRC:      04  uint8_t value          - Data section CRC
+DATA:      229 uint8_t array          - Data payload (e.g sensor read, text,...)
 */
 
-typedef std::array<byte,8> Duid;
-typedef std::array<byte,4> Muid;
+typedef std::array<uint8_t,8> Duid;
+typedef std::array<uint8_t,4> Muid;
 
 class CdpPacket {
 public:
   /// Source Device UID (8 bytes)
-  std::array<byte,8> sduid;
+  std::array<uint8_t,8> sduid;
   /// Destination Device UID (8 bytes)
-  std::array<byte,8> dduid;
+  std::array<uint8_t,8> dduid;
   /// Message UID (4 bytes)
-  std::array<byte,4> muid;
-  /// Message topic (1 byte)
-  byte topic;
-  /// Offset to the Path section (1 byte)
-  byte path_offset;
+  std::array<uint8_t,4> muid;
+  /// Message topic (1 uint8_t)
+  uint8_t topic;
+  /// Offset to the Path section (1 uint8_t)
+  uint8_t path_offset;
   /// Type of ducks as define in DuckTypes.h
-  byte duckType;
+  uint8_t duckType;
   /// Number of times a packet was relayed in the mesh
-  byte hopCount;
+  uint8_t hopCount;
   /// crc32 for the data section
   uint32_t dcrc;
   /// Data section
-  std::vector<byte> data;
+  std::vector<uint8_t> data;
   /// Path section (48 bytes max)
-  //std::array<byte,48> path;
+  //std::array<uint8_t,48> path;
   //time received
   unsigned long timeReceived;
 
   CdpPacket() {
     reset();
   }
-  CdpPacket(const std::vector<byte> & buffer) {
+  CdpPacket(const std::vector<uint8_t> & buffer) {
       int buffer_length = buffer.size();
       // sduid
       std::copy(&buffer[SDUID_POS], &buffer[DDUID_POS], sduid.begin());
@@ -198,13 +200,13 @@ public:
   ~CdpPacket() {}
 
   /**
-   * @brief Resets the cdp packet and underlying byte buffers.
+   * @brief Resets the cdp packet and underlying uint8_t buffers.
    *
    */
   void reset() {
-    std::array<byte,8>().swap(sduid);
-    std::array<byte,4>().swap(muid);
-    //std::array<byte,8>().swap(path);
+    std::array<uint8_t,8>().swap(sduid);
+    std::array<uint8_t,4>().swap(muid);
+    //std::array<uint8_t,8>().swap(path);
     data.clear();
     duckType = DuckType::UNKNOWN;
     hopCount = 0;

@@ -12,9 +12,9 @@ AsyncEventSource events("/events");
 DNSServer DuckNet::dnsServer;
 
 const char* DuckNet::DNS = "duck";
-const byte DuckNet::DNS_PORT = 53;
+const uint8_t DuckNet::DNS_PORT = 53;
 
-void DuckNet::setDeviceId(std::array<byte,8> devId) {
+void DuckNet::setDeviceId(std::array<uint8_t,8> devId) {
     std::copy(devId.begin(), devId.end(), deviceId.begin());
 }
 
@@ -318,4 +318,4 @@ std::string DuckNet::getSsid() { return ssid; }
 
 std::string DuckNet::getPassword() { return password; }
 
-#endif
+#endif //CDPCFG_WIFI_NONE

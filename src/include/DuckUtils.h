@@ -16,12 +16,19 @@
 #include "arduino-timer.h"
 #include <Arduino.h>
 #include <EEPROM.h>
+#else
+#include "../Timer.h" //this will swap the custom timer version for linux
+		      //systems into the external timer for ARDUINO systems.
+#include <zlib.h>
+#include <string>
 #endif //ARDUINO
+
 
 #include <string>
 #include <vector>
 #include "../DuckError.h"
 #include <array>
+#include <cstdint>
 
 namespace duckutils {
 
@@ -39,20 +46,21 @@ std::string getCDPVersion();
 std::string toUpperCase(std::string str);
 
 /**
- * @brief Convert a string to a byte array.
+ * @brief Convert a string to a uint8_t array.
  *
  * @param str the string to convert
  * @returns A vector of bytes.
  */
-std::vector<byte> stringToByteVector(const String& str);
-
+#ifdef ARDUINO
+std::vector<uint8_t> stringToByteVector(const String& str);
+#endif //ARDUINO
 /**
- * @brief Creates a byte array with random alpha numerical values.
+ * @brief Creates a uint8_t array with random alpha numerical values.
  *
  * @param length the array length
  * @param bytes array of bytes of the specified length
  */ 
-void getRandomBytes(int length, byte* bytes);
+void getRandomBytes(int length, uint8_t* bytes);
 
 /**
  * @brief Create a uuid string.
@@ -63,19 +71,19 @@ void getRandomBytes(int length, byte* bytes);
 std::string createUuid(int length = CDPCFG_UUID_LEN);
 
 /**
- * @brief Convert a byte array into a hex string.
+ * @brief Convert a uint8_t array into a hex string.
  * 
- * @param data a byte array to convert
+ * @param data a uint8_t array to convert
  * @param size the size of the array
  * @returns A string representating the by array in hexadecimal.
  */
-std::string convertToHex(byte* data, int size);
+std::string convertToHex(uint8_t* data, int size);
 
 /**
  * @brief Convert a vector into an ASCII string.
  * 
  * @param vec A vector to convert
- * @returns A std::string representing the byte array in ASCII.
+ * @returns A std::string representing the uint8_t array in ASCII.
  * 
  */
 template<typename T>
@@ -94,7 +102,7 @@ std::string toString(const std::vector<T>& vec) {
  * @brief Convert a vector into an ASCII string.
  *
  * @param arr A vector to convert
- * @returns A std::string representing the byte array in ASCII.
+ * @returns A std::string representing the uint8_t array in ASCII.
  *
  */
 template<typename T,size_t S>
@@ -113,7 +121,7 @@ std::string toString(const std::array<T,S>& arr) {
  * @brief Convert an array into hex for sending over http or display.
  *
  * @param arr an array to convert
- * @returns A std::string representing the byte array in ASCII.
+ * @returns A std::string representing the uint8_t array in ASCII.
  *
  */
 template<typename T,size_t S>
@@ -123,7 +131,7 @@ std::string arrayToHexString(const std::array<T,S>& arr) {
     buf.reserve(S * 2); // 2 digit hex
     const char* cs = "0123456789ABCDEF";
     for (int i = 0; i < S; i++) {
-        byte val = arr[i];
+        uint8_t val = arr[i];
         buf += cs[(val >> 4) & 0x0F];
         buf += cs[val & 0x0F];
     }
@@ -156,12 +164,12 @@ bool isEqual(const std::vector<T> & a, const std::vector<T> & b) {
     }
 
 /**
- * @brief Convert a byte array to unsigned 32 bit integer.
+ * @brief Convert a uint8_t array to unsigned 32 bit integer.
  * 
- * @param data byte array to convert
+ * @param data uint8_t array to convert
  * @returns a 32 bit unsigned integer.
  */
-uint32_t toUint32(const byte* data);
+uint32_t toUint32(const uint8_t* data);
 
 /**
  * @brief Get a timer instance.

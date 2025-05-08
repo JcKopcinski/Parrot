@@ -135,7 +135,7 @@ int DuckRadio::setupRadio(LoraConfigParams config) {
     return DUCK_ERR_NONE;
 }
 
-int DuckRadio::setSyncWord(byte syncWord) {
+int DuckRadio::setSyncWord(uint8_t syncWord) {
     if (!isSetup) {
         logerr_ln("ERROR  LoRa radio not setup");
         return DUCKLORA_ERR_NOT_INITIALIZED;
@@ -156,7 +156,7 @@ int DuckRadio::goToReceiveMode(bool clearReceiveFlag) {
     return startReceive();
 }
 
-int DuckRadio::readReceivedData(std::vector<byte>* packetBytes) {
+int DuckRadio::readReceivedData(std::vector<uint8_t>* packetBytes) {
 
     int packet_length = 0;
     int err = DUCK_ERR_NONE;
@@ -196,15 +196,21 @@ int DuckRadio::readReceivedData(std::vector<byte>* packetBytes) {
 
     loginfo_ln("readReceivedData: checking path offset integrity");
 
-    byte* data = packetBytes->data();
+    uint8_t* data = packetBytes->data();
 
     loginfo_ln("readReceivedData: checking data section CRC");
 
-    std::vector<byte> data_section;
+    std::vector<uint8_t> data_section;
     data_section.insert(data_section.end(), &data[DATA_POS], &data[packet_length]);
     uint32_t packet_data_crc = duckutils::toUint32(&data[DATA_CRC_POS]);
+
+    #ifdef ARDUINO
     uint32_t computed_data_crc =
             CRC32::calculate(data_section.data(), data_section.size());
+    #else
+    uint32_t computed_data_crc = crc32(0L, data_section.data(), data_section.size());
+    #endif //ARDUINO
+	   
     if (computed_data_crc != packet_data_crc) {
         logerr_ln("ERROR data crc mismatch: received: 0x%X, calculated: 0x%X",packet_data_crc, computed_data_crc);
         return DUCKLORA_ERR_HANDLE_PACKET;
@@ -223,7 +229,7 @@ int DuckRadio::readReceivedData(std::vector<byte>* packetBytes) {
     return err;
 }
 
-int DuckRadio::sendData(byte* data, int length)
+int DuckRadio::sendData(uint8_t* data, int length)
 {
 
     if (!isSetup) {
@@ -245,7 +251,7 @@ int DuckRadio::relayPacket(DuckPacket* packet)
                              packet->getBuffer().size());
 }
 
-int DuckRadio::sendData(std::vector<byte> data)
+int DuckRadio::sendData(std::vector<uint8_t> data)
 {
     if (!isSetup) {
         logerr_ln("ERROR  LoRa radio not setup");
@@ -423,7 +429,7 @@ void DuckRadio::onInterrupt(void) {
     interruptFlags = lora.getIrqFlags();
 }
 
-int DuckRadio::startTransmitData(byte* data, int length) {
+int DuckRadio::startTransmitData(uint8_t* data, int length) {
     int err = DUCK_ERR_NONE;
     int tx_err = RADIOLIB_ERR_NONE;
 

@@ -12,8 +12,11 @@
 #include "include/bloomfilter.h"
 #include <string>
 
+#ifndef ARDUINO
+#include <zlib.h>
+#endif //ARDUINO
 
-bool DuckPacket::prepareForRelaying(BloomFilter *filter, std::vector<byte> dataBuffer) {
+bool DuckPacket::prepareForRelaying(BloomFilter *filter, std::vector<uint8_t> dataBuffer) {
 
 
   this->reset();
@@ -31,7 +34,7 @@ bool DuckPacket::prepareForRelaying(BloomFilter *filter, std::vector<byte> dataB
     logdbg_ln("handleReceivedPacket: Relaying packet: %s", duckutils::convertToHex(&dataBuffer[MUID_POS], MUID_LENGTH).c_str());
   }
 
-  // update the rx packet internal byte buffer
+  // update the rx packet internal uint8_t buffer
   buffer = dataBuffer;
   int hops = buffer[HOP_COUNT_POS]++;
   loginfo_ln("prepareForRelaying: hops count: %d", hops);
@@ -40,7 +43,7 @@ bool DuckPacket::prepareForRelaying(BloomFilter *filter, std::vector<byte> dataB
   
 }
 
-void DuckPacket::getUniqueMessageId(BloomFilter * filter, byte message_id[MUID_LENGTH]) {
+void DuckPacket::getUniqueMessageId(BloomFilter * filter, uint8_t message_id[MUID_LENGTH]) {
 
   bool getNewUnique = true;
   while (getNewUnique) {
@@ -51,8 +54,8 @@ void DuckPacket::getUniqueMessageId(BloomFilter * filter, byte message_id[MUID_L
 }
 
 int DuckPacket::prepareForSending(BloomFilter *filter,
-                                  std::array<byte,8> targetDevice, byte duckType,
-                                  byte topic, std::vector<byte> app_data) {
+                                  std::array<uint8_t,8> targetDevice, uint8_t duckType,
+                                  uint8_t topic, std::vector<uint8_t> app_data) {
 
   std::vector<uint8_t> encryptedData;
   uint8_t app_data_length = app_data.size();
@@ -65,17 +68,26 @@ int DuckPacket::prepareForSending(BloomFilter *filter,
 
   loginfo_ln("prepareForSending: DATA LENGTH: %d - TOPIC (%s)", app_data_length, CdpPacket::topicToString(topic).c_str());
 
-  byte message_id[MUID_LENGTH];
+  uint8_t message_id[MUID_LENGTH];
   getUniqueMessageId(filter, message_id);
 
-  byte crc_bytes[DATA_CRC_LENGTH];
+  uint8_t crc_bytes[DATA_CRC_LENGTH];
   uint32_t value;
-  // TODO: update the CRC32 library to return crc as a byte array
+  // TODO: update the CRC32 library to return crc as a uint8_t array
+
   if(duckcrypto::getState()) {
     duckcrypto::encryptData(app_data.data(), encryptedData.data(), app_data.size());
+    #ifdef ARDUINO
     value = CRC32::calculate(encryptedData.data(), encryptedData.size());
+    #else
+    value = crc32(0L, encryptedData.data(), encryptedData.size());
+    #endif //ARDUINO
   } else {
+    #ifdef ARDUINO
     value = CRC32::calculate(app_data.data(), app_data.size());
+    #else
+    value = crc32(0L, app_data.data(), app_data.size());
+    #endif //ARDUINO
   }
   
   crc_bytes[0] = (value >> 24) & 0xFF;

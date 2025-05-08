@@ -14,12 +14,13 @@
 #ifdef ARDUINO
 #include <Arduino.h>
 #endif //ARDUINO
+
 #include "../DuckDisplay.h"
 #include "../DuckError.h"
 #include "../DuckLogger.h"
 #include "cdpcfg.h"
 #include "DuckPacket.h"
-
+#include <cstdint>
 /**
  * @brief Internal structure to hold the LoRa module configuration
  * 
@@ -74,27 +75,27 @@ public:
   /**
    * @brief Set sync word used to communicate between radios. 0x12 for private and 0x34 for public channels.
    * 
-   * @param syncWord set byte syncWord
+   * @param syncWord set uint8_t syncWord
    * @returns DUCK_ERR_NONE if the sync word was set successfully, an error code otherwise.
    */
-  int setSyncWord(byte syncWord);
+  int setSyncWord(uint8_t syncWord);
 
   /**
    * @brief Send packet data out into the LoRa mesh network
    *
-   * @param data byte buffer to send
-   * @param length length of the byte buffer
+   * @param data uint8_t buffer to send
+   * @param length length of the uint8_t buffer
    * @return int
    */
-  int sendData(byte* data, int length);
+  int sendData(uint8_t* data, int length);
 
   /**
    * @brief Send packet data out into the mesh network
    *
-   * @param data byte vector to send
+   * @param data uint8_t vector to send
    * @returns DUCK_ERR_NONE if the message was sent successfully, an error code otherwise.
    */
-  int sendData(std::vector<byte> data);
+  int sendData(std::vector<uint8_t> data);
   
   /**
    * @brief Send packet data out into the mesh network
@@ -118,7 +119,7 @@ public:
    * @param length data length in bytes
    * @returns DUCK_ERR_NONE if the call was successful, an error code otherwise.
    */
-  int startTransmitData(byte* data, int length);
+  int startTransmitData(uint8_t* data, int length);
 
    /**
    * @brief change the duck channel.
@@ -161,10 +162,10 @@ public:
   /**
    * @brief Get the data received from the radio
    * 
-   * @param  packetBytes byte buffer to contain the data 
+   * @param  packetBytes uint8_t buffer to contain the data 
    * @return DUCK_ERR_NONE if the chip is sucessfuly set in standby mode, an error code otherwise. 
    */
-  int readReceivedData(std::vector<byte>* packetBytes);
+  int readReceivedData(std::vector<uint8_t>* packetBytes);
 
   /**
    * @brief Get the DuckRadio channel.
