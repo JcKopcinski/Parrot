@@ -1,7 +1,9 @@
 #ifndef DUCKDETECT_H
 #define DUCKDETECT_H
 
+#ifdef ARDUINO
 #include <Arduino.h>
+#endif //ARDUINO
 
 #include "include/Duck.h"
 #include "include/cdpcfg.h"
@@ -41,7 +43,7 @@ public:
    * 
    * @returns DUCK_ERR_NONE if setup is successfull, an error code otherwise.
    */
-  int setupWithDefaults(std::array<byte,8> deviceId, std::string ssid = "",
+  int setupWithDefaults(std::array<uint8_t,8> deviceId, std::string ssid = "",
                         std::string password = "");
 
   /// callback definition for receiving RSSI value

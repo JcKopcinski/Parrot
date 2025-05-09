@@ -100,6 +100,7 @@ int Duck::setDeviceId(std::string& id) {
     return DUCK_ERR_NONE;
 }
 
+#ifdef ARDUINO
 int Duck::setupSerial(int baudRate) {
   // This gives us 10 seconds to do a hard reset if the board is in a bad state after power cycle
   while (!Serial && millis() < 10000);
@@ -109,6 +110,12 @@ int Duck::setupSerial(int baudRate) {
   loginfo_ln("Running CDP Version: %s",getCDPVersion().c_str());
   return DUCK_ERR_NONE;
 }
+#else
+int Duck::setupSerial(int baudRate) {
+  loginfo_ln("Running CDP Version: %s",getCDPVersion().c_str());
+  return DUCK_ERR_NONE;
+}
+#endif //ARDUINO
 
 // TODO: use LoraConfigParams directly as argument to setupRadio
 int Duck::setupRadio(float band, int ss, int rst, int di0, int di1,

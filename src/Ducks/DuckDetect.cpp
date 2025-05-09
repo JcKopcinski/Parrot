@@ -1,6 +1,6 @@
 #include "../DuckDetect.h"
 
-int DuckDetect::setupWithDefaults(std::array<byte,8> deviceId, std::string ssid,
+int DuckDetect::setupWithDefaults(std::array<uint8_t,8> deviceId, std::string ssid,
                                   std::string password) {
   int err = Duck::setupWithDefaults(deviceId, ssid, password);
   if (err != DUCK_ERR_NONE) {
@@ -59,7 +59,7 @@ void DuckDetect::handleReceivedPacket() {
 
   loginfo("handleReceivedPacket()...");
 
-  std::vector<byte> data;
+  std::vector<uint8_t> data;
   int err = duckRadio.readReceivedData(&data);
 
   if (err != DUCK_ERR_NONE) {
@@ -76,7 +76,7 @@ void DuckDetect::handleReceivedPacket() {
 void DuckDetect::sendPing() {
   loginfo("Sending PING...");
   int err = DUCK_ERR_NONE;
-  std::vector<byte> data(1, 0);
+  std::vector<uint8_t> data(1, 0);
   err = txPacket->prepareForSending(&filter, BROADCAST_DUID, DuckType::DETECTOR, reservedTopic::ping, data);
 
   if (err == DUCK_ERR_NONE) {
