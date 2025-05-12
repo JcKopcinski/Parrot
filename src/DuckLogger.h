@@ -8,10 +8,11 @@
 #include <cstdarg>
 #include <cstddef>
 #endif //ARDUINO
+
 #define CDP_DEBUG
 #endif //CDP_NO_LOG
 
-
+#include <string>
 #define CDP_DEBUG
 
 

@@ -209,6 +209,8 @@ private:
   int checkLoRaParameters(LoraConfigParams config);
 
   DuckRadio() {};
+
+  //non copyable
   DuckRadio(DuckRadio const&) = delete;
   DuckRadio& operator=(DuckRadio const&) = delete;
   

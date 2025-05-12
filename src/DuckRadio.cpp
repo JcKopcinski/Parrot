@@ -15,17 +15,40 @@
 #include "include/DuckUtils.h"
 #include <RadioLib.h>
 
-#if defined(CDPCFG_RADIO_SX1262)
-CDPCFG_LORA_CLASS lora =
-        new Module(CDPCFG_PIN_LORA_CS, CDPCFG_PIN_LORA_DIO1, CDPCFG_PIN_LORA_RST,
-                   CDPCFG_PIN_LORA_BUSY);
-#else
-CDPCFG_LORA_CLASS lora = new Module(CDPCFG_PIN_LORA_CS, CDPCFG_PIN_LORA_DIO0,
-                  CDPCFG_PIN_LORA_RST, CDPCFG_PIN_LORA_DIO1);
-#endif
+#ifdef LINUX
+#include "PiHal.h"
+#endif //LINUX
 
 volatile uint16_t DuckRadio::interruptFlags = 0;
 volatile bool DuckRadio::receivedFlag = false;
+
+Module* createRadioModule() {
+	#ifdef LINUX
+	const RadioPinout& pinout = getPlatformPinout();
+	PiHal* hal = new PiHal(pinout.spiBus);
+	hal->init();
+	return new Module(hal, pinout.nss, pinout.dio1, pinout.nrst, pinout.busy);
+	#else
+	#if defined(ARDUINO)
+		#if defined(CDPCFG_RADIO_SX1262)
+	        return new Module(CDPCFG_PIN_LORA_CS, CDPCFG_PIN_LORA_DIO1, CDPCFG_PIN_LORA_RST,
+	                   CDPCFG_PIN_LORA_BUSY);
+		#else
+		CDPCFG_LORA_CLASS lora = new Module(CDPCFG_PIN_LORA_CS, CDPCFG_PIN_LORA_DIO0,
+        	           CDPCFG_PIN_LORA_RST, CDPCFG_PIN_LORA_DIO1);
+		#endif //CDPCFG_RADIO_SX1262
+	#else
+	return nullptr;
+	#endif //ARDUINO
+	#endif //LINUX
+}
+
+//Double Check Build Environemt
+#if defined(LINUX)
+	#pragma message("Building for Raspbery Pi")
+#endif
+
+CDPCFG_LORA_CLASS lora = createRadioModule(); //create the LoRa module & pinouts
 
 int DuckRadio::checkLoRaParameters(LoraConfigParams config) {
     int rc = DUCK_ERR_NONE;
@@ -58,6 +81,7 @@ int DuckRadio::checkLoRaParameters(LoraConfigParams config) {
 
 int DuckRadio::setupRadio(LoraConfigParams config) {
     loginfo_ln("Setting up RADIOLIB LoRa radio...");
+
     int rc;
     rc = checkLoRaParameters(config);
     if (rc != DUCK_ERR_NONE) {
