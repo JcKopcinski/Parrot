@@ -18,30 +18,22 @@ class Timer {
 			stop();
 		}
 
-		//non copyable
-		Timer(const Timer&) = delete;
-		Timer& operator = (const Timer&) = delete;
-
 		//Schedule a function to be called every interval_ms milliseconds
-		void every(T interval_ms, std::function<void()>& callback) {
+		void every(T interval_ms, std::function<void()> callback) {
 			std::lock_guard<std::mutex> lock(mutex);
 			threads.emplace_back([=]() {
-				while(running.load()) {
+				while(running) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
-					if(running.load()) {
-						callback();
-					}
+					if(running) callback();
 				}
 			});
 		}
 
 		void stop() {
-			running.store(false);
+			running = false;
 			std::lock_guard<std::mutex> lock(mutex);
 			for (auto& t : threads) {
-				if(t.joinable()) {
-					t.join();
-				}	
+				if(t.joinable()) {t.join();}
 			}
 			threads.clear();
 		}
@@ -50,7 +42,6 @@ class Timer {
 		std::vector<std::thread> threads;
 		std::mutex mutex;
 };
-
 inline Timer<>& timer_create_default() {
 	static Timer<> defaultTimer;
 	return defaultTimer;

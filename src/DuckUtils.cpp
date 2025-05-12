@@ -8,14 +8,19 @@
 
 namespace duckutils {
 
+#ifdef ARDUINO
 Timer<> duckTimer = timer_create_default();
+Timer<> getTimer() {return duckTimer;}
+#else
+Timer<>& duckTimer = getTimer();
+#endif //ARDUINO
+
 bool detectState = false;
 
 std::string getCDPVersion() {
   return std::to_string(CDP_VERSION_MAJOR) + "." + std::to_string(CDP_VERSION_MINOR) + "." + std::to_string(CDP_VERSION_PATCH);
 }
 
-Timer<> getTimer() { return duckTimer; }
 
 bool getDetectState() { return detectState; }
 bool flipDetectState() {
@@ -30,7 +35,7 @@ void  getRandomBytes(int length, uint8_t* bytes) {
   for (i = 0; i < length; i++) {
     //TODO: Random generator here isn't seeded properly
     //We can use RSSI value to seed it or use a frame counter if available
-    bytes[i] = digits[random(36)];    
+    bytes[i] = digits[compat_rand::random(36)];    
   }
 }
 
@@ -39,7 +44,7 @@ std::string createUuid(int length) {
   int i;
 
   for (i = 0; i < length; i++) {
-    uint8_t randomValue = random(36);
+    uint8_t randomValue = compat_rand::random(36);
     if (randomValue < 26) {
       msg = msg + char(randomValue + 'a');
     } else {
@@ -145,7 +150,7 @@ std::string loadWifiPassword() {
   }
   return epass;
 }
-#endif
+#endif //CDPCFG_WIFI_NONE
 
 std::string toUpperCase(std::string str) {
   std::string upper = "";

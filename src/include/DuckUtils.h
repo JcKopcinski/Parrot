@@ -11,12 +11,14 @@
 #define DUCKUTILS_H_
 
 #include "cdpcfg.h"
+#include "../compat_random.h"
 
 #ifdef ARDUINO
 #include "arduino-timer.h"
 #include <Arduino.h>
 #include <EEPROM.h>
 #else
+#pragma once
 #include "../Timer.h" //this will swap the custom timer version for linux
 		      //systems into the external timer for ARDUINO systems.
 #include <zlib.h>
@@ -32,7 +34,17 @@
 
 namespace duckutils {
 
+#ifdef ARDUINO	
 extern Timer<> duckTimer;
+/**
+ * @brief Get a timer instance.
+ * 
+ * @returns A Timer instance.
+ */
+Timer<> getTimer();
+#else
+Timer<>& getTimer();
+#endif //ARDUINO
 extern bool detectState;
 
 std::string getCDPVersion();
@@ -170,14 +182,6 @@ bool isEqual(const std::vector<T> & a, const std::vector<T> & b) {
  * @returns a 32 bit unsigned integer.
  */
 uint32_t toUint32(const uint8_t* data);
-
-/**
- * @brief Get a timer instance.
- * 
- * @returns A Timer instance.
- */
-Timer<> getTimer();
-
 
 bool getDetectState();
 bool flipDetectState();
