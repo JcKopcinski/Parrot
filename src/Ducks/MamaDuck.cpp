@@ -2,7 +2,7 @@
 #include "../MemoryFree.h"
 
 
-int MamaDuck::setupWithDefaults(std::array<byte,8> deviceId, std::string ssid, std::string password) {
+int MamaDuck::setupWithDefaults(std::array<uint8_t,8> deviceId, std::string ssid, std::string password) {
   
   int err = Duck::setupWithDefaults(deviceId, ssid, password);
   if (err != DUCK_ERR_NONE) {
@@ -58,7 +58,7 @@ void MamaDuck::run() {
 
 void MamaDuck::handleReceivedPacket() {
  
-  std::vector<byte> data;
+  std::vector<uint8_t> data;
   bool relay = false;
   
   loginfo_ln("====> handleReceivedPacket: START");
@@ -116,8 +116,8 @@ void MamaDuck::handleReceivedPacket() {
           }
       }
     } else if(duckutils::isEqual(duid, packet.dduid)) { //Target device check
-        std::vector<byte> dataPayload;
-        byte num = 1;
+        std::vector<uint8_t> dataPayload;
+        uint8_t num = 1;
       
       switch(packet.topic) {
         case topics::dcmd:
@@ -154,8 +154,8 @@ void MamaDuck::handleReceivedPacket() {
 
 void MamaDuck::handleCommand(const CdpPacket & packet) {
   int err;
-  std::vector<byte> dataPayload;
-  std::vector<byte> alive {'I','m',' ','a','l','i','v','e'};
+  std::vector<uint8_t> dataPayload;
+  std::vector<uint8_t> alive {'I','m',' ','a','l','i','v','e'};
 
   switch(packet.data[0]) {
     case 0:

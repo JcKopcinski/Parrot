@@ -1,8 +1,13 @@
 #ifndef PAPADUCK_H
 #define PAPADUCK_H
 
+#ifdef ARDUINO
 #include <Arduino.h>
 #include <arduino-timer.h>
+#else
+#include "Timer.h"
+#endif //ARDUINO
+
 #include "include/Duck.h"
 
 class PapaDuck : public Duck {
@@ -12,7 +17,7 @@ public:
   ~PapaDuck() {}
 
   /// Papa Duck callback functions signature.
-  using rxDoneCallback = void (*)(std::vector<byte> data );
+  using rxDoneCallback = void (*)(std::vector<uint8_t> data );
   using txDoneCallback = void (*)(void);
   /**
    * @brief Register callback for handling data received from duck devices
@@ -42,7 +47,7 @@ public:
    * @param password wifi password (defaults to an empty string if not provided)
    * @returns DUCK_ERR_NONE if setup is successfull, an error code otherwise.
    */
-   int setupWithDefaults(std::array<byte,8> deviceId, std::string ssid = "",
+   int setupWithDefaults(std::array<uint8_t,8> deviceId, std::string ssid = "",
                             std::string password = "");
 
   /**
@@ -73,10 +78,10 @@ public:
    * commands to remote ducks. See `MamaDuck.cpp` for available commands.
    * All ducks will execute this command and relay.
    *
-   * @param cmd byte enum for command to be executed.
+   * @param cmd uint8_t enum for command to be executed.
    * @param value contextual data to be used in executed command.
    */
-  void sendCommand(byte cmd, std::vector<byte> value);
+  void sendCommand(uint8_t cmd, std::vector<uint8_t> value);
 
   /**
    * @brief Send duck command to specific duck
@@ -85,11 +90,11 @@ public:
    * two parts for each command. Only PapaDucks are able to send 
    * commands to remote ducks. See `MamaDuck.cpp` for available commands. 
    *
-   * @param cmd byte enum for command to be executed.
+   * @param cmd uint8_t enum for command to be executed.
    * @param value contextual data to be used in executed command.
    * @param dduid destination duck ID for command to be executed.
    */
-  void sendCommand(byte cmd, std::vector<byte> value, std::array<byte,8> dduid);
+  void sendCommand(uint8_t cmd, std::vector<uint8_t> value, std::array<uint8_t,8> dduid);
 
 private:
 

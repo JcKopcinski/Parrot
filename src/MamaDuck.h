@@ -1,7 +1,10 @@
 #ifndef MAMADUCK_H
 #define MAMADUCK_H
 
+#ifdef ARDUINO
 #include <Arduino.h>
+#endif //ARDUINO
+
 #include "include/Duck.h"
 #include "include/DuckUtils.h"
 
@@ -11,7 +14,7 @@ public:
 
   ~MamaDuck() {}
 
-  using rxDoneCallback = void (*)(std::vector<byte> data );
+  using rxDoneCallback = void (*)(std::vector<uint8_t> data );
   /**
    * @brief Register callback for handling data received from duck devices
    * 
@@ -42,7 +45,7 @@ public:
    * 
    * @returns DUCK_ERR_NONE if setup is successfull, an error code otherwise.
    */
-   int setupWithDefaults(std::array<byte,8> deviceId, std::string ssid = "",
+   int setupWithDefaults(std::array<uint8_t,8> deviceId, std::string ssid = "",
                             std::string password = "");
 
   /**

@@ -68,6 +68,13 @@ void Duck::logIfLowMemory() {
   }
 }
 
+int Duck::setDeviceId(std::string& id){
+	return setDeviceId(std::vector<uint8_t>(id.begin(), id.end());
+}
+
+int Duck::setDeviceId(const uint8_t* id, size_t len){
+	if
+}
 int Duck::setDeviceId(std::array<uint8_t,8>& id) {
     std::copy(id.begin(), id.end(),duid.begin());
   loginfo_ln("setupDeviceId rc = %d",DUCK_ERR_NONE);

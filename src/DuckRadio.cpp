@@ -23,18 +23,18 @@ volatile uint16_t DuckRadio::interruptFlags = 0;
 volatile bool DuckRadio::receivedFlag = false;
 
 Module* createRadioModule() {
-	#ifdef LINUX
+	#ifdef defined(LINUX) && defined(CDPCFG_RADIO_SX1262)
 	const RadioPinout& pinout = getPlatformPinout();
-	PiHal* hal = new PiHal(pinout.spiBus);
+	PiHal* hal = new PiHal(0);
 	hal->init();
-	return new Module(hal, pinout.nss, pinout.dio1, pinout.nrst, pinout.busy);
+	return new Module(hal, CDPCFG_PIN_LORA_CS, CDPCFG_PIN_LORA_DIO0, CDPCFG_PIN_LORA_RST, CDPCFG_PIN_LORA_BUSY);
 	#else
 	#if defined(ARDUINO)
 		#if defined(CDPCFG_RADIO_SX1262)
 	        return new Module(CDPCFG_PIN_LORA_CS, CDPCFG_PIN_LORA_DIO1, CDPCFG_PIN_LORA_RST,
 	                   CDPCFG_PIN_LORA_BUSY);
 		#else
-		CDPCFG_LORA_CLASS lora = new Module(CDPCFG_PIN_LORA_CS, CDPCFG_PIN_LORA_DIO0,
+		return new Module(CDPCFG_PIN_LORA_CS, CDPCFG_PIN_LORA_DIO0,
         	           CDPCFG_PIN_LORA_RST, CDPCFG_PIN_LORA_DIO1);
 		#endif //CDPCFG_RADIO_SX1262
 	#else
@@ -69,8 +69,7 @@ int DuckRadio::checkLoRaParameters(LoraConfigParams config) {
         return DUCK_ERR_INVALID_ARGUMENT;
     }
     if (config.bw < 7.8 || config.bw > 500.0) {
-        logerr_ln("ERROR  bandwidth is invalid");
-        return DUCK_ERR_INVALID_ARGUMENT;
+
     }
     if (config.gain < 0 || config.gain > 3) {
         logerr_ln("ERROR  gain is invalid");

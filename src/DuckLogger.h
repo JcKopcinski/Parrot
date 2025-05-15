@@ -7,12 +7,12 @@
 #else
 #include <cstdarg>
 #include <cstddef>
+#include <cstring>
 #endif //ARDUINO
 
 #define CDP_DEBUG
 #endif //CDP_NO_LOG
 
-#include <string>
 #define CDP_DEBUG
 
 

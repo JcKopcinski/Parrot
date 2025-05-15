@@ -9,6 +9,14 @@
 //WIFI Settings
 #define CDPCFG_WIFI_NONE
 
+//radio type
+#define CDPCFG_RADIO_SX1262
+
+#define CDPCFG_PIN_LORA_CS 29
+#define CDPCFG_PIN_LORA_DIO1 27
+#define CDPCFG_PIN_LORA_BUSY 28
+#define CDPCFG_PIN_LORA_RST 1
+#define CDPCFG_PIN_LORA_DIO0 -1
 //Pinouts
 struct RadioPinout {
 	int nss;
@@ -18,6 +26,7 @@ struct RadioPinout {
 	int spiBus;
 };
 
+//These are the wiring pi pin output numbers, emulating inputs from Ben Duval's codebase
 constexpr RadioPinout PI_HAT_PINS = {
 	.nss = 29,
 	.dio1 = 27,
