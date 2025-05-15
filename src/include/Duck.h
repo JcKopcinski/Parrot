@@ -42,7 +42,15 @@ public:
    * 
    * @returns A string representing the duck's name
    */
-  std::string getName() {return duckName;}
+   std::string getName() {return duckName;}
+
+  /**
+   * @brief setup the duck unique ID
+   *
+   * @param a std::vector<uint8_t> unique id
+   * @return DUCK_ERR_NONE if successful, an error code otherwise
+   */
+  int setDeviceId(const std::vector<uint8_t>& id);
   /**
    * @brief setup the duck unique ID
    * 
@@ -66,7 +74,7 @@ public:
      * @return DUCK_ERR_NONE if successful, an error code otherwise
      */
   [[deprecated("use setDeviceId(std::array<uint8_t,8>& id) instead")]]
-  int setDeviceId(uint8_t* id);
+  int setDeviceId(const uint8_t* id, size_t len);
   /**
    * @brief Setup serial connection.
    *

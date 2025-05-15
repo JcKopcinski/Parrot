@@ -68,43 +68,32 @@ void Duck::logIfLowMemory() {
   }
 }
 
-int Duck::setDeviceId(std::string& id){
-	return setDeviceId(std::vector<uint8_t>(id.begin(), id.end());
+int Duck::setDeviceId(const std::vector<uint8_t>& id){
+	if(id.size() != DUID_LENGTH){
+		logerr_ln("ERROR: device ID must be %zu bytes (got %zu)", DUID_LENGTH, id.size());
+		return DUCK_ERR_ID_TOO_LONG;
+	}
+
+	std::copy(id.begin(), id.end(), duid.begin());
+	loginfo_ln("Device ID set successfully");
+	return DUCK_ERR_NONE;
 }
 
-int Duck::setDeviceId(const uint8_t* id, size_t len){
-	if
+int Duck::setDeviceId(std::string& id){
+	return setDeviceId(std::vector<uint8_t>(id.begin(), id.end()));
 }
+
 int Duck::setDeviceId(std::array<uint8_t,8>& id) {
-    std::copy(id.begin(), id.end(),duid.begin());
-  loginfo_ln("setupDeviceId rc = %d",DUCK_ERR_NONE);
+	return setDeviceId(std::vector<uint8_t>(id.begin(), id.end()));
   return DUCK_ERR_NONE;
 }
 
-
-int Duck::setDeviceId(uint8_t* id) {
-    if (id == nullptr) {
-        logerr_ln("ERROR  device id empty or address invalid = %d", DUCK_ERR_SETUP);
-        return DUCK_ERR_SETUP;
-    }
-    int len = *(&id + 1) - id;
-    if (len > DUID_LENGTH) {
-        logerr_ln("ERROR  device id too long rc = %d", DUCK_ERR_ID_TOO_LONG);
-        return DUCK_ERR_ID_TOO_LONG;
-    }
-    std::copy(id, id + len, duid.begin());
-    loginfo_ln("setupDeviceId rc = %d",DUCK_ERR_NONE);
-    return DUCK_ERR_NONE;
-}
-
-int Duck::setDeviceId(std::string& id) {
-    if (id.size() != DUID_LENGTH) {
-        logerr_ln("ERROR  device id too long rc = %d", DUCK_ERR_ID_TOO_LONG);
-        return DUCK_ERR_ID_TOO_LONG;
-    }
-    std::copy(id.begin(), id.end(),duid.begin());
-    loginfo_ln("setupDeviceId rc = %d", DUCK_ERR_NONE);
-    return DUCK_ERR_NONE;
+int Duck::setDeviceId(const uint8_t* id, size_t len){
+	if(!id || len != DUID_LENGTH) {
+		logerr_ln("ERROR: null or invalid device id pointer");
+		return DUCK_ERR_SETUP;
+	}
+	return setDevceId(std::vector<uint8_t>(id, id+len));
 }
 
 #ifdef ARDUINO
