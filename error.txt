@@ -1,0 +1,20 @@
+Processing raspberrypi_zero (board: raspberrypi_zero; platform: linux_arm)
+--------------------------------------------------------------------------------
+Verbose mode can be enabled via `-v, --verbose` option
+CONFIGURATION: https://docs.platformio.org/page/boards/linux_arm/raspberrypi_zero.html
+PLATFORM: Linux ARM (1.6.0) > Raspberry Pi Zero
+HARDWARE: BCM2835 1000MHz, 512MB RAM, 512MB Flash
+LDF: Library Dependency Finder -> https://bit.ly/configure-pio-ldf
+LDF Modes: Finder ~ chain, Compatibility ~ soft
+Found 5 compatible libraries
+Scanning dependencies...
+Dependency Graph
+|-- RadioLib @ 7.1.2
+|-- ArduinoJson @ 7.4.1
+|-- WiringPi @ 0.0.0+20250515095024.sha.ee3e2a9
+Building in release mode
+Compiling .pio/build/raspberrypi_zero/src/DuckGPS.o
+Compiling .pio/build/raspberrypi_zero/src/Ducks/Duck.o
+Compiling .pio/build/raspberrypi_zero/src/Ducks/MamaDuck.o
+Compiling .pio/build/raspberrypi_zero/src/Ducks/PapaDuck.o
+
