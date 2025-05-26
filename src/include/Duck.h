@@ -57,7 +57,7 @@ public:
    * @param an 8 uint8_t array
    * @return DUCK_ERR_NONE if successful, an error code otherwise 
    */
-  int setDeviceId(std::array<uint8_t,8>& id);
+  int setDeviceId(const std::array<uint8_t,8>& id);
 
   /**
    * @brief setup the duck unique ID
@@ -65,7 +65,7 @@ public:
    * @param an 8 uint8_t unique id
    * @return DUCK_ERR_NONE if successful, an error code otherwise
    */
-  int setDeviceId(std::string& id);
+  int setDeviceId(const std::string& id);
 
     /**
      * @brief setup the duck unique ID

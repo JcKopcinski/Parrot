@@ -23,7 +23,7 @@ volatile uint16_t DuckRadio::interruptFlags = 0;
 volatile bool DuckRadio::receivedFlag = false;
 
 Module* createRadioModule() {
-	#ifdef defined(LINUX) && defined(CDPCFG_RADIO_SX1262)
+	#if defined(LINUX) && defined(CDPCFG_RADIO_SX1262)
 	const RadioPinout& pinout = getPlatformPinout();
 	PiHal* hal = new PiHal(0);
 	hal->init();

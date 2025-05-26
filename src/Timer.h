@@ -23,13 +23,14 @@ class Timer {
 		Timer& operator = (const Timer&) = delete;
 
 		//Schedule a function to be called every interval_ms milliseconds
-		void every(T interval_ms, std::function<void()>& callback) {
+		void every(T interval_ms, std::function<bool(void*)> callback, void* arg = nullptr) {
 			std::lock_guard<std::mutex> lock(mutex);
 			threads.emplace_back([=]() {
 				while(running.load()) {
 					std::this_thread::sleep_for(std::chrono::milliseconds(interval_ms));
 					if(running.load()) {
-						callback();
+						bool keepRunning = callback(arg);
+						if(!keepRunning) break;
 					}
 				}
 			});

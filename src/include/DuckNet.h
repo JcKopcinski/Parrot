@@ -105,6 +105,10 @@ public:
     return std::string("");
   }
 
+  void setDeviceId(std::array<uint8_t,8> deviceId) {
+    logwarn_ln("WARNING setDeviceId skipped, device has no WiFi.");
+  }
+
   void setDeviceId(std::vector<uint8_t> deviceId) {
     logwarn_ln("WARNING setDeviceId skipped, device has no WiFi.");
   }
@@ -239,7 +243,6 @@ public:
    * @param deviceId Duck's device ID string to set
    */
   void setDeviceId(std::array<uint8_t,8> deviceId);
-
 
   /**
    * @brief Provide Wifi connection status.

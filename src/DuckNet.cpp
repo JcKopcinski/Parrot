@@ -14,9 +14,19 @@ DNSServer DuckNet::dnsServer;
 const char* DuckNet::DNS = "duck";
 const uint8_t DuckNet::DNS_PORT = 53;
 
-void DuckNet::setDeviceId(std::array<uint8_t,8> devId) {
+void DuckNet::setDeviceId(std::array<uint8_t,8>& devId) {
     std::copy(devId.begin(), devId.end(), deviceId.begin());
 }
+
+//void DuckNet::setDeviceId(const std::vector<uint8_t>&id){
+//	if(id.size() != 8){
+//		logerr_ln("Invalid DUID size");
+//		return;
+//	}
+//	std::array<uint8_t, 8> arr;
+//	std::copy(id.begin(), id.end(), arr.begin());
+//	setDeviceId(arr);
+//}
 
 int DuckNet::setupWebServer(bool createCaptivePortal, std::string html) {
   loginfo_ln("Setting up Web Server");

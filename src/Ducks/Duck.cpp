@@ -79,13 +79,12 @@ int Duck::setDeviceId(const std::vector<uint8_t>& id){
 	return DUCK_ERR_NONE;
 }
 
-int Duck::setDeviceId(std::string& id){
+int Duck::setDeviceId(const std::string& id){
 	return setDeviceId(std::vector<uint8_t>(id.begin(), id.end()));
 }
 
-int Duck::setDeviceId(std::array<uint8_t,8>& id) {
+int Duck::setDeviceId(const std::array<uint8_t,8>& id) {
 	return setDeviceId(std::vector<uint8_t>(id.begin(), id.end()));
-  return DUCK_ERR_NONE;
 }
 
 int Duck::setDeviceId(const uint8_t* id, size_t len){
@@ -93,7 +92,7 @@ int Duck::setDeviceId(const uint8_t* id, size_t len){
 		logerr_ln("ERROR: null or invalid device id pointer");
 		return DUCK_ERR_SETUP;
 	}
-	return setDevceId(std::vector<uint8_t>(id, id+len));
+	return setDeviceId(std::vector<uint8_t>(id, id+len));
 }
 
 #ifdef ARDUINO
