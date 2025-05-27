@@ -1,133 +1,105 @@
-#ifndef PI_HAL_WIRINGPI_H
-#define PI_HAL_WIRINGPI_H
+// PiHal_modernized.h
+#ifndef PI_HAL_MODERNIZED_H
+#define PI_HAL_MODERNIZED_H
 
-// include RadioLib
 #include <RadioLib.h>
-
-// include the library for Raspberry GPIO pins
-#include <wiringPi.h>
-#include <wiringPiSPI.h>
+#include <chrono>
+#include <thread>
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <linux/spi/spidev.h>
+#include <gpiod.h>
+#include <cstring>
 #include <cerrno>
-#include <sched.h>
-#include <inttypes.h>
+#include "Timer.h"
+#include "DuckError.h"
+#include "DuckLogger.h"
 
+#define PI_INPUT         0
+#define PI_OUTPUT        1
+#define PI_RISING        1
+#define PI_FALLING       2
+#define PI_MAX_USER_GPIO 31
 
-#define PI_RISING         (INT_EDGE_RISING)
-#define PI_FALLING        (INT_EDGE_FALLING)
-#define PI_INPUT          (INPUT)
-#define PI_OUTPUT         (OUTPUT)
-#define PI_MAX_USER_GPIO  (31)
-
-// forward declaration of alert handler that will be used to emulate interrupts
-static void wiringPiInterruptHandler(void);
-
-// create a new Raspberry Pi hardware abstraction layer
-// using the wiringPi library
-// the HAL must inherit from the base RadioLibHal class
-// and implement all of its virtual methods
 class PiHal : public RadioLibHal {
   public:
-    // default constructor - initializes the base HAL and any needed private members
-    PiHal(uint8_t spiChannel, uint32_t spiSpeed = 2000000)
-      : RadioLibHal(PI_INPUT, PI_OUTPUT, LOW, HIGH, PI_RISING, PI_FALLING),
-      _spiChannel(spiChannel),
-      _spiSpeed(spiSpeed) {
+    PiHal(const char* gpiochip = "/dev/gpiochip0", uint32_t spiSpeed = 2000000)
+      : RadioLibHal(PI_INPUT, PI_OUTPUT, 0, 1, PI_RISING, PI_FALLING),
+        _gpiochip_path(gpiochip), _spiSpeed(spiSpeed), chip(nullptr), spiFd(-1), lastError(DUCK_ERR_NONE) {
     }
 
     void init() override {
-      // Initialize wiringPi library
-      if (wiringPiSetup() == -1) {
-        fprintf(stderr, "Failed to initialize wiringPi\n");
+      chip = gpiod_chip_open(_gpiochip_path);
+      if (!chip) {
+        logerr_ln("PiHal ERROR: Failed to open GPIO chip: %s", strerror(errno));
+        lastError = DUCK_ERR_SETUP;
         return;
       }
 
-      // now the SPI
-      spiBegin();
+      spiFd = open("/dev/spidev0.0", O_RDWR);
+      if (spiFd < 0) {
+        logerr_ln("PiHal ERROR: Failed to open SPI device: %s", strerror(errno));
+        lastError = DUCK_ERR_SETUP;
+        return;
+      }
+
+      uint8_t mode = SPI_MODE_0;
+      ioctl(spiFd, SPI_IOC_WR_MODE, &mode);
+      ioctl(spiFd, SPI_IOC_WR_MAX_SPEED_HZ, &_spiSpeed);
     }
 
     void term() override {
-      // stop the SPI
-      spiEnd();
+      if (chip) gpiod_chip_close(chip);
+      if (spiFd >= 0) close(spiFd);
     }
 
-    // GPIO-related methods (pinMode, digitalWrite etc.) should check
-    // RADIOLIB_NC as an alias for non-connected pins
     void pinMode(uint32_t pin, uint32_t mode) override {
-      if(pin == RADIOLIB_NC) {
+      auto line = gpiod_chip_get_line(chip, pin);
+      if (!line) {
+        logerr_ln("PiHal ERROR: Failed to get GPIO line %u", pin);
+        lastError = DUCK_ERR_SETUP;
         return;
       }
-
-      ::pinMode(pin, mode);
+      int rc = (mode == PI_OUTPUT) ?
+        gpiod_line_request_output(line, "radiolib", 0) :
+        gpiod_line_request_input(line, "radiolib");
+      if (rc < 0) {
+        logerr_ln("PiHal ERROR: Failed to request line %u", pin);
+        lastError = DUCK_ERR_SETUP;
+      }
     }
 
     void digitalWrite(uint32_t pin, uint32_t value) override {
-      if(pin == RADIOLIB_NC) {
+      auto line = gpiod_chip_get_line(chip, pin);
+      if (!line) {
+        logerr_ln("PiHal ERROR: Failed to get GPIO line for write: %u", pin);
+        lastError = DUCK_ERR_SETUP;
         return;
       }
-
-      ::digitalWrite(pin, value);
+      gpiod_line_set_value(line, value);
     }
 
     uint32_t digitalRead(uint32_t pin) override {
-      if(pin == RADIOLIB_NC) {
-        return(0);
+      auto line = gpiod_chip_get_line(chip, pin);
+      if (!line) {
+        logerr_ln("PiHal ERROR: Failed to get GPIO line for read: %u", pin);
+        lastError = DUCK_ERR_SETUP;
+        return 0;
       }
-
-      return ::digitalRead(pin);
-    }
-
-    void attachInterrupt(uint32_t interruptNum, void (*interruptCb)(void), uint32_t mode) override {
-      if(interruptNum == RADIOLIB_NC || interruptNum > PI_MAX_USER_GPIO) {
-        return;
-      }
-
-      // enable emulated interrupt
-      interruptEnabled[interruptNum] = true;
-      interruptModes[interruptNum] = mode;
-      interruptCallbacks[interruptNum] = interruptCb;
-
-      // set wiringPi interrupt callback
-      if (wiringPiISR(interruptNum, mode, interruptCb) < 0) {
-        fprintf(stderr, "Could not set ISR for pin %" PRIu32 "\n", interruptNum);
-      }
-    }
-
-    void detachInterrupt(uint32_t interruptNum) override {
-      if(interruptNum == RADIOLIB_NC || interruptNum > PI_MAX_USER_GPIO) {
-        return;
-      }
-
-      // clear emulated interrupt
-      interruptEnabled[interruptNum] = false;
-      interruptModes[interruptNum] = 0;
-      interruptCallbacks[interruptNum] = NULL;
-      
-      // No direct way to detach in wiringPi, disable callback
-      if (wiringPiISR(interruptNum, INT_EDGE_SETUP, nullptr) < 0) {
-        fprintf(stderr, "Could not detach ISR for pin %" PRIu32 "\n", interruptNum);
-      }
+      return gpiod_line_get_value(line);
     }
 
     void delay(unsigned long ms) override {
-      if(ms == 0) {
-        sched_yield();
-        return;
-      }
-
-      ::delay(ms);
+      std::this_thread::sleep_for(std::chrono::milliseconds(ms));
     }
 
     void delayMicroseconds(unsigned long us) override {
-      if(us == 0) {
-        sched_yield();
-        return;
-      }
-
-      ::delayMicroseconds(us);
+      std::this_thread::sleep_for(std::chrono::microseconds(us));
     }
 
     void yield() override {
-      sched_yield();
+      std::this_thread::yield();
     }
 
     unsigned long millis() override {
@@ -139,68 +111,52 @@ class PiHal : public RadioLibHal {
     }
 
     long pulseIn(uint32_t pin, uint32_t state, unsigned long timeout) override {
-      if(pin == RADIOLIB_NC) {
-        return(0);
+      auto start = micros();
+      while (digitalRead(pin) == state) {
+        if (micros() - start > timeout) return 0;
       }
+      return micros() - start;
+    }
 
-      this->pinMode(pin, PI_INPUT);
-      uint32_t start = this->micros();
-      uint32_t curtick = this->micros();
+    void spiBegin() override {}
+    void spiBeginTransaction() override {}
+    void spiEndTransaction() override {}
+    void spiEnd() override {}
 
-      while(this->digitalRead(pin) == state) {
-        if((this->micros() - curtick) > timeout) {
-          return(0);
-        }
+    void spiTransfer(uint8_t* out, size_t len, uint8_t* in) override {
+      struct spi_ioc_transfer tr = {
+        .tx_buf = (unsigned long)out,
+        .rx_buf = (unsigned long)in,
+        .len = static_cast<uint32_t>(len),
+        .speed_hz = _spiSpeed,
+        .bits_per_word = 8,
+      };
+
+      if (ioctl(spiFd, SPI_IOC_MESSAGE(1), &tr) < 0) {
+        logerr_ln("PiHal ERROR: SPI transfer failed: %s", strerror(errno));
+        lastError = DUCKLORA_ERR_TRANSMIT;
       }
-
-      return(this->micros() - start);
     }
 
-    void spiBegin() {
-      // SPI initialization is done in init
-      if (wiringPiSPISetup(_spiChannel, _spiSpeed) < 0) {
-        fprintf(stderr, "Could not open SPI handle: %s\n", strerror(errno));
-      }
+    void attachInterrupt(uint32_t, void (*)(void), uint32_t) override {
+      // Optional: use thread-based polling or epoll with gpiod_line_event_wait
     }
 
-    void spiBeginTransaction() {}
+    void detachInterrupt(uint32_t) override {}
 
-    void spiTransfer(uint8_t* out, size_t len, uint8_t* in) {
-      uint8_t* buffer = new uint8_t[len];
-      memcpy(buffer, out, len);
+    void tone(uint32_t, unsigned int, unsigned long = 0) override {}
+    void noTone(uint32_t) override {}
 
-      if (wiringPiSPIDataRW(_spiChannel, buffer, len) == -1) {
-        fprintf(stderr, "Could not perform SPI transfer: %s\n", strerror(errno));
-      }
-
-      memcpy(in, buffer, len);
-      delete[] buffer;
+    int getLastError() const {
+      return lastError;
     }
-
-    void spiEndTransaction() {}
-
-    void spiEnd() {
-      // No specific end method for SPI in wiringPi
-    }
-
-    void tone(uint32_t pin, unsigned int frequency, unsigned long duration = 0) {
-      // No direct implementation in wiringPi, can be customized if needed
-    }
-
-    void noTone(uint32_t pin) {
-      // No direct implementation in wiringPi, can be customized if needed
-    }
-
-    // interrupt emulation
-    bool interruptEnabled[PI_MAX_USER_GPIO + 1];
-    uint32_t interruptModes[PI_MAX_USER_GPIO + 1];
-    typedef void (*RadioLibISR)(void);
-    RadioLibISR interruptCallbacks[PI_MAX_USER_GPIO + 1];
 
   private:
-    // the HAL can contain any additional private members
-    const unsigned int _spiSpeed;
-    const uint8_t _spiChannel;
+    const char* _gpiochip_path;
+    uint32_t _spiSpeed;
+    struct gpiod_chip* chip;
+    int spiFd;
+    int lastError;
 };
 
-#endif
+#endif // PI_HAL_MODERNIZED_H

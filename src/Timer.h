@@ -66,4 +66,11 @@ inline unsigned long millis() {
 	auto now = std::chrono::steady_clock::now();
 	return std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
 }
+
+inline unsigned long micros() {
+	static const auto start_time = std::chrono::steady_clock::now();
+	auto now = std::chrono::steady_clock::now();
+	return std::chrono::duration_cast<std::chrono::microseconds>(now - start_time).count();
+}
+
 #endif //TIMER_H
